@@ -12,6 +12,8 @@
 (import alias: (identifier) @namespace)
 (remote_type_identifier
   module: (identifier) @namespace)
+(remote_constructor_name
+  module: (identifier) @namespace)
 ((field_access
   record: (identifier) @namespace
   field: (label) @function)
@@ -19,6 +21,8 @@
 
 ; Functions
 (unqualified_import (identifier) @function)
+(unqualified_import "type" (type_identifier) @type)
+(unqualified_import (type_identifier) @constructor)
 (function
   name: (identifier) @function)
 (external_function
@@ -41,23 +45,36 @@
 (tuple_access
   index: (integer) @variable.other.member)
 
+; Attributes
+(attribute
+  "@" @attribute
+  name: (identifier) @attribute)
+
+(attribute_value (identifier) @constant)
+
 ; Type names
 (remote_type_identifier) @type
 (type_identifier) @type
 
+; Data constructors
+(constructor_name) @constructor
+
 ; Literals
 (string) @string
+((escape_sequence) @warning
+ (#eq? @warning "\\e")) ; deprecated escape sequence
+(escape_sequence) @constant.character.escape
 (bit_string_segment_option) @function.builtin
 (integer) @constant.numeric.integer
 (float) @constant.numeric.float
 
+; Reserved identifiers
+((identifier) @error
+ (#any-of? @error "auto" "delegate" "derive" "else" "implement" "macro" "test" "echo"))
+
 ; Variables
 (identifier) @variable
 (discard) @comment.unused
-
-; Operators
-(binary_expression
-  operator: _ @operator)
 
 ; Keywords
 [
@@ -67,15 +84,23 @@
   "assert"
   "case"
   "const"
+  ; DEPRECATED: 'external' was removed in v0.30.
   "external"
   "fn"
   "if"
   "import"
   "let"
+  "panic"
   "todo"
-  "try"
   "type"
+  "use"
 ] @keyword
+
+; Operators
+(binary_expression
+  operator: _ @operator)
+(boolean_negation "!" @operator)
+(integer_negation "-" @operator)
 
 ; Punctuation
 [
@@ -98,4 +123,5 @@
   "->"
   ".."
   "-"
+  "<-"
 ] @punctuation.delimiter
